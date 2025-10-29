@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Feedback - Gravitacional Media</title>
+  <style>
+    :root{
+      --bg: #000;
+      --fg: #fff;
+      --muted: #bfbfbf;
+      --accent: #1e90ff;
+      --max-width: 720px;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font-family: Inter, Roboto, Arial, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .container{
+      width:100%;
+      max-width:var(--max-width);
+      padding:32px;
+      box-sizing:border-box;
+      text-align:center;
+    }
+
+    h1{margin:0 0 12px 0;font-size:1.6rem}
+    p.lead{margin:0 0 20px 0;color:var(--muted)}
+
+    .stars{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      margin:20px 0 32px 0;
+    }
+    .stars img{
+      width:56px;
+      height:56px;
+      object-fit:contain;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .08s ease;
+    }
+    .stars img:active{transform:scale(.96)}
+
+    .input-group{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:stretch;
+      margin-bottom:16px;
+    }
+
+    textarea{
+      width:100%;
+      min-height:120px;
+      max-height:300px;
+      resize:vertical;
+      background:transparent;
+      color:var(--fg);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:12px;
+      border-radius:8px;
+      outline:none;
+      box-sizing:border-box;
+      font-size:1rem;
+    }
+    textarea:focus{box-shadow:0 0 0 4px rgba(30,144,255,0.08);border-color:var(--accent)}
+
+    .btn{
+      align-self:center;
+      padding:10px 18px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:transparent;
+      color:var(--fg);
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn:hover{opacity:.95}
+
+    .bottom-box{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:12px;
+      width:min(1100px,94%);
+      padding:10px 12px;
+      box-sizing:border-box;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.02);
+      color:var(--fg);
+    }
+
+    footer{margin-top:28px;color:var(--muted);font-size:0.9rem}
+
+    @media (max-width:520px){
+      .stars img{width:44px;height:44px}
+      textarea{min-height:96px}
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Feedback sobre a Gravitacional Media</h1>
+    <p class="lead">Avalie-noz</p>
+
+    <div class="stars">
+      <img src="star-1.png" data-default="star-1.png" data-hover="star-1-hover.png" alt="estrela 1" />
+      <img src="star-2.png" data-default="star-2.png" data-hover="star-2-hover.png" alt="estrela 2" />
+      <img src="star-3.png" data-default="star-3.png" data-hover="star-3-hover.png" alt="estrela 3" />
+      <img src="star-4.png" data-default="star-4.png" data-hover="star-4-hover.png" alt="estrela 4" />
+      <img src="star-5.png" data-default="star-5.png" data-hover="star-5-hover.png" alt="estrela 5" />
+    </div>
+
+    <form id="feedbackForm" class="input-group" autocomplete="off">
+      <label for="comment" style="text-align:left;color:var(--muted);">Comentário</label>
+      <textarea id="comment" name="comment" placeholder="Escreva aqui seu feedback..."></textarea>
+      <button type="submit" class="btn">Enviar</button>
+    </form>
+
+    <footer>Obrigado pelo seu tempo — sua opinião nos ajuda a melhorar.</footer>
+  </main>
+
+  <div class="bottom-box">
+    <label for="finalNote" style="display:block;text-align:left;color:var(--muted);margin-bottom:6px">Caixa de texto (final da página)</label>
+    <textarea id="finalNote" placeholder="Minha mente está em putrefação. " style="min-height:56px;max-height:120px"></textarea>
+  </div>
+
+  <script>
+    (function(){
+      const stars = Array.from(document.querySelectorAll('.stars img'));
+
+      stars.forEach((img, idx) => {
+        const defaultSrc = img.dataset.default;
+        const hoverSrc = img.dataset.hover;
+        if(!hoverSrc) return;
+
+        const setHover = ()=> img.src = hoverSrc;
+        const setDefault = ()=> img.src = defaultSrc;
+
+        img.addEventListener('mouseenter', setHover);
+        img.addEventListener('mouseleave', setDefault);
+        img.addEventListener('focus', setHover);
+        img.addEventListener('blur', setDefault);
+
+        img.addEventListener('click', ()=>{
+          stars.forEach((s,i)=> s.src = (i <= idx) ? (s.dataset.hover||s.dataset.default) : s.dataset.default);
+          document.getElementById('feedbackForm').dataset.rating = (idx+1);
+        });
+
+        img.addEventListener('keydown', (ev)=>{
+          if(ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            img.click();
+          }
+        });
+      });
+
+      document.getElementById('feedbackForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const rating = this.dataset.rating || '0';
+        const comment = document.getElementById('comment').value.trim();
+        alert('Obrigado!\\nNota: ' + rating + '\\nComentário: ' + (comment || '(vazio)'));
+        this.reset();
+        delete this.dataset.rating;
+        document.querySelectorAll('.stars img').forEach(img=> img.src = img.dataset.default);
+      });
+
+    })();
+  </script>
+</body>
+</html>
